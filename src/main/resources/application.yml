@@ -12,3 +12,11 @@ spring:
     url: jdbc:mysql://localhost:3306/mybatis_plus?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
     username: root
     password: xbh123456
+
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: flag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
