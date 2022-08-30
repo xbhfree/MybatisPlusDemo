@@ -7,6 +7,7 @@ import org.example.pojo.User;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -14,9 +15,8 @@ import javax.annotation.Resource;
  * @author xbhfr
  */
 @Service
+@Transactional
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-
-
     @Autowired
     private UserMapper userMapper;
 
