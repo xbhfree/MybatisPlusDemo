@@ -25,11 +25,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//使用@MybatisTest注解后用内存数据库，非内存数据库需要加下述接口
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class MybatisPlusTest {
 
     @Autowired
@@ -42,18 +45,31 @@ public class MybatisPlusTest {
      * 测试多个查询
      */
     @Test
-    public void testQueue(){
+    public void testQueue() {
         List<User> list = userService.list();
         list.forEach(user -> {
             System.out.println(user.getName() + " " + user.getEmail());
         });
     }
 
+
+
+    @Test
+    public void testInsertBatch(){
+        List<User> list = new ArrayList<>();
+        for (int i = 0; i < 10  ; i++) {
+            User user = new User();
+            user.setName("xbh" + i);
+            user.setEmail("xbh" + i + "@qq.com");
+            list.add(user);
+        }
+        userService.saveBatch(list);
+    }
     /**
      * 测试数据库
      */
     @Test
-    public void testCount(){
+    public void testCount() {
         System.out.println("count = " + userService.count());
     }
 
@@ -61,7 +77,7 @@ public class MybatisPlusTest {
      * 测试单个删除
      */
     @Test
-    public void testLogicDelete(){
+    public void testLogicDelete() {
         userMapper.deleteById(1);
         System.out.println("success delete");
     }
@@ -70,19 +86,43 @@ public class MybatisPlusTest {
      * 测试修饰类
      */
     @Test
-    public void testWrapper(){
+    public void testWrapper() {
         AbstractWrapper wrapper = new QueryWrapper();
-        wrapper.eq( "id", "1");
+        wrapper.eq("id", "1");
         User one = userService.getOne(wrapper);
         System.out.println(one.toString());
     }
 
+    @Test
+    public void testInsert() {
+        User user = new User();
+        user.setEmail("xxx@12334.com");
+        user.setAge(32);
+        user.setName("john");
+        userMapper.insert(user);
+        System.out.println(user.getId());
+    }
 
+
+    @Test
+    public void testSelectMapId(){
+        Map<String, Object> stringObjectMap = userMapper.selectMapById(2L);
+        System.out.println(stringObjectMap);
+
+    }
+    @Test
+    public void testDelete(){
+
+        AbstractWrapper wrapper = new UpdateWrapper();
+        wrapper.eq("id", 1L);
+        int delete = userMapper.delete(wrapper);
+        System.out.println(delete);
+    }
     /**
      * 测试分页
      */
     @Test
-    public void testPage(){
+    public void testPage() {
         int curPage = 1;
         int limit = 2;
         IPage<User> page = new Page<>(curPage, limit);
@@ -98,17 +138,18 @@ public class MybatisPlusTest {
      * 测试乐观锁
      */
     @Test
-    public void testOptimisticLocker(){
+    public void testOptimisticLocker() {
         UpdateWrapper<User> wrapper = new UpdateWrapper();
         User user = userMapper.selectById(1);
         user.setAge(12);
         userMapper.updateById(user);
     }
+
     /**
      * 测试乐观锁冲突
      */
     @Test
-    public void testOptimisticLockerFail(){
+    public void testOptimisticLockerFail() {
         User user = userService.getById(1);
         user.setAge(2);
         User user2 = userService.getById(1);
@@ -122,7 +163,7 @@ public class MybatisPlusTest {
      * Cause: com.baomidou.mybatisplus.core.exceptions.MybatisPlusException: Prohibition of table update operation
      */
     @Test
-    public void testFullTableUpdate(){
+    public void testFullTableUpdate() {
         User user = new User();
         user.setId(999L);
         user.setName("Alisa");
@@ -135,7 +176,7 @@ public class MybatisPlusTest {
      * 部分更新
      */
     @Test
-    public void testPartTableUpdate(){
+    public void testPartTableUpdate() {
         LambdaUpdateWrapper<User> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(User::getId, 1L);
         User user = new User();
@@ -144,5 +185,6 @@ public class MybatisPlusTest {
         user.setEmail("custername@qq.com");
         userService.saveOrUpdate(user, wrapper);
     }
+
 
 }

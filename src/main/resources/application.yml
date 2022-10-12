@@ -2,18 +2,27 @@ spring:
   application:
     name: MybatisPlusDemo
   datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    #spring2.1以后内置jdbc5，之前jdbc4
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/mybatis_plus?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
+    # GMT%2B8 = GMT+8
+    url: jdbc:mysql://localhost:3306/mybatis_plus?characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false
     username: root
     password: xbh123456
 
 
 mybatis-plus:
+  # 默认mapper配置文件目录
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       logic-delete-field: flag
       logic-delete-value: 1
       logic-not-delete-value: 0
+      # table-prefix: t_ 设置实体类表的统一前缀为 t_
+      # id-type: auto 设置统一的主键生成策略
 
 logging:
   level:
