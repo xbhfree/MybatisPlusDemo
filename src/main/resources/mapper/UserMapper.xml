@@ -6,4 +6,9 @@
             select id, name, email from user where id = #{id}
         </select>
 
+<!--    需在yml文配类别-->
+        <select id="selectPageVo" resultType="User">
+            select id, name, age, email from user where age > #{age}
+        </select>
+
 </mapper>

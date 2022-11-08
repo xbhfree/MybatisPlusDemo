@@ -5,11 +5,13 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.system.SystemUtil;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.Application;
@@ -22,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -52,8 +53,127 @@ public class MybatisPlusTest {
         });
     }
 
+    @Test
+    public void testQueryWrapper(){
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        // between包含左右数值
+        //wrapper.between("age",12, 15);
 
+        // >
+        //wrapper.gt("age", 12);
 
+        //排序，年龄排序降序，id升序
+        //wrapper.orderByDesc("age").orderByAsc("id");
+
+        //删除
+        /**
+        wrapper.isNull("email").or().eq("email", "");
+        userMapper.delete(wrapper);
+         */
+
+        //修改
+        /**
+        wrapper.gt("age", 20)
+                .or()
+                .isNull("email");
+        User user = new User();
+        user.setName("小明");
+        userMapper.update(user, wrapper);
+         */
+
+        /**
+         * 优先级测试
+         * 修改用户名包含a并且（年龄大于20或邮箱为null）
+         * Lambda中的条件优先执行
+         */
+        /**
+        wrapper.like("name", "a")
+                .and(i -> i.gt("age", 20).or().isNull("email"));
+        User user = new User();
+        user.setName("小红");
+        userMapper.update(user, wrapper);
+         */
+
+        // 查询特定字段
+        /**
+        wrapper.select("name", "age", "email");
+        List<Map<String, Object>> maps = userMapper.selectMaps(wrapper);
+        maps.forEach(System.out::println);
+         */
+
+        /**
+         * 子查询
+         * 查询id小于等于100的用户信息
+         * SELECT id,name,age,email,flag,version FROM user WHERE flag=0 AND (id IN (select id from user where id <= 100))
+         */
+        /**
+        wrapper.inSql("id", "select id from user where id <= 100");
+        List<User> list = userMapper.selectList(wrapper);
+        list.forEach(System.out::println);
+         */
+    }
+
+    @Test
+    public void testUpdateWrapper(){
+        /**
+         * 修改用户名包含a并且（年龄大于20或邮箱为null）
+         */
+        UpdateWrapper<User> wrapper = new UpdateWrapper<>();
+        wrapper.like("name", "a")
+                .and(i -> i.gt("age", 20).or().isNull("email"));
+        wrapper.set("name", "小黑").set("email", "xbh@123.com");
+        userMapper.update(null, wrapper);
+    }
+
+    @Test
+    public void testRealProjectPackage(){
+        String username = "";
+        Integer ageBegin = 20;
+        Integer ageEnd = 30;
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        if (StringUtils.isNotBlank(username)){
+            wrapper.like("name", username);
+        }
+        if (ageBegin != null){
+            wrapper.ge("age", ageBegin);
+        }
+        if (ageEnd != null){
+            wrapper.le("age", ageEnd);
+        }
+        List<User> list = userMapper.selectList(wrapper);
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    public void testCondition(){
+        String username = "";
+        Integer ageBegin = 20;
+        Integer ageEnd = 30;
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like(StringUtils.isNotBlank(username),"name", username)
+                .ge(ageBegin != null, "age", ageBegin)
+                .le(ageEnd != null, "age", ageEnd);
+        List<User> list = userMapper.selectList(wrapper);
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    public void testLambdaQueueWrapper(){
+        String username = "";
+        Integer ageBegin = 20;
+        Integer ageEnd = 30;
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(StringUtils.isNotBlank(username), User::getName, username)
+                .ge(ageBegin != null, User::getAge, ageBegin)
+                .le(ageEnd != null, User::getAge, ageEnd);
+        List<User> list = userMapper.selectList(wrapper);
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    public void testLambdaUpdateWrapper(){
+
+    }
     @Test
     public void testInsertBatch(){
         List<User> list = new ArrayList<>();

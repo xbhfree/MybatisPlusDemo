@@ -5,17 +5,22 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     #spring2.1以后内置jdbc5，之前jdbc4
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # GMT%2B8 = GMT+8
-    url: jdbc:mysql://localhost:3306/mybatis_plus?characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false
+    # GMT%2B8 = GMT+8  allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/mybatis_plus?characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: xbh123456
 
 
 mybatis-plus:
+  # 配置类型别名所对应的包 aliases别名
+  type-aliases-package: org.example.pojo
   # 默认mapper配置文件目录
   mapper-locations: classpath*:/mapper/**/*.xml
   configuration:
+    # 打印sql语句
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 设置下划线转驼峰
+    map-underscore-to-camel-case: true
   global-config:
     db-config:
       logic-delete-field: flag
